@@ -1,0 +1,14 @@
+{
+  "domain": "mai_tools",
+  "name": "M.A.I Tools",
+  "version": "0.0.3",
+  "documentation": "https://github.com/manhvuarchitect/M.A.I-tools",
+  "issue_tracker": "https://github.com/manhvuarchitect/M.A.I-tools/issues",
+  "codeowners": [
+    "@manhvuarchitect"
+  ],
+  "requirements": [],
+  "dependencies": [],
+  "iot_class": "local_push",
+  "config_flow": true
+}

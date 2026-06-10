@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "M.A.I Tools",
+        "description": "Cài đặt M.A.I Tools — bộ công cụ quản lý Home Assistant."
+      }
+    },
+    "abort": {
+      "already_configured": "M.A.I Tools đã được cài đặt."
+    }
+  }
+}
