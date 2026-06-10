@@ -6,7 +6,7 @@ Tác giả: [@manhvuarchitect](https://github.com/manhvuarchitect) · [midar.vn]
 
 ---
 
-## Tính năng v2.0
+## Tính năng nổi bật (v0.0.3)
 
 ### 📤 Entity Export — 3 chế độ
 | Chế độ | Mô tả |
@@ -24,11 +24,19 @@ Tất cả 3 chế độ tạo ra **1 file `.json` duy nhất** chứa nhiều t
 - Ví dụ: lấy 2 entity từ công tắc 4 nút → gắn vào 2 entity của công tắc 2 nút
 - Preview toàn bộ danh sách cặp → **Áp dụng** 1 lần
 
+### ⚠️ Conflict Detection (Phát hiện xung đột)
+- Trước khi đổi tên `entity_id`, hệ thống tự động quét xem entity đích có đang được tham chiếu trong bất kỳ **Automation** hoặc **Script** nào không.
+- Hiển thị Modal cảnh báo chi tiết giúp bạn tránh việc làm hỏng tự động hóa, với tùy chọn "Vẫn tiếp tục" nếu muốn ép buộc đổi.
+
+### 🕐 History & Rollback (Lịch sử & Hoàn tác)
+- Mỗi lần Apply thành công, hệ thống tự động lưu lại một **Snapshot** của trạng thái cũ.
+- Trong tab Lịch sử, bạn có thể xem lại các lần thay đổi, hoặc click **Rollback** để phục hồi toàn bộ `entity_id` về trạng thái ban đầu một cách an toàn.
+
 ## Roadmap
 
 | Tool | Status |
 |---|---|
-| Entity Migrator (Export + Import) | ✅ v2.0 |
+| Entity Migrator (Export + Import) | ✅ v0.0.3 |
 | Backup Manager (schedule, version) | 🔜 Coming soon |
 | Entity Inspector | 🔜 Coming soon |
 | Automation Audit | 🔜 Coming soon |
