@@ -4,6 +4,7 @@ import logging, os, shutil
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.components.frontend import async_register_built_in_panel
+from .supervisor_backup import register_views as register_backup_views
 from .api import (
     MAIDeviceListView, MAIExportView, MAITargetEntitiesView,
     MAICheckConflictsView, MAIStorePairsView, MAIApplyView,
@@ -24,6 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ]:
         hass.http.register_view(view)
     await hass.async_add_executor_job(_copy_frontend, hass)
+    register_backup_views(hass)
     async_register_built_in_panel(
         hass, component_name="iframe", sidebar_title="M.A.I Tools",
         sidebar_icon="mdi:swap-horizontal", frontend_url_path="mai-tools",

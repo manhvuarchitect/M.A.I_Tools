@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Supervisor Backup Manager</title>
+<style>
+  :root {
+    --bg: #111318;
+    --card: #1c1f26;
+    --card2: #22252e;
+    --border: #2e3140;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --green: #34d17a;
+    --red: #f76b6b;
+    --yellow: #f7c948;
+    --text: #e2e6f0;
+    --muted: #7a7f94;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 20px;
+  }
+  h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+
+  /* Status Card */
+  .status-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .status-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .status-item {
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .status-item .label { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+  .status-item .value { font-size: 0.88rem; font-weight: 600; font-family: monospace; }
+  .ok { color: var(--green); }
+  .warn { color: var(--yellow); }
+  .err { color: var(--red); }
+  .mismatch-banner {
+    background: rgba(247,107,107,.12);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mismatch-banner .icon { font-size: 1.4rem; }
+  .mismatch-banner .msg { flex: 1; font-size: 0.88rem; }
+  .mismatch-banner .msg strong { color: var(--red); }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn:active { opacity: .7; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-danger  { background: var(--red); color: #fff; }
+  .btn-warn    { background: var(--yellow); color: #111; }
+  .btn-ghost   { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* Snapshots list */
+  .section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .snapshot-list { display: flex; flex-direction: column; gap: 8px; }
+  .snapshot-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color .15s;
+  }
+  .snapshot-card:hover { border-color: var(--accent); }
+  .snap-icon { font-size: 1.5rem; }
+  .snap-info { flex: 1; min-width: 0; }
+  .snap-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .snap-meta { font-size: 0.75rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 10px; }
+  .snap-meta span { display: flex; align-items: center; gap: 3px; }
+  .snap-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; border-radius: 6px; }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+  .empty .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .modal h2 { font-size: 1.05rem; margin-bottom: 8px; }
+  .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+  .modal input, .modal textarea {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .modal input:focus, .modal textarea:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    max-width: 320px;
+    z-index: 2000;
+    transition: opacity .3s;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error   { border-color: var(--red); color: var(--red); }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+  <h1>🛡 Supervisor Backup Manager</h1>
+  <button class="btn btn-ghost" onclick="window.location.href='index.html?v=0.0.4'">◀ Quay lại M.A.I Tools</button>
+</div>
+<p class="subtitle">Backup & restore critical Supervisor config files — tránh lỗi token mismatch</p>
+
+<!-- Token mismatch warning -->
+<div id="mismatch-banner" class="mismatch-banner hidden">
+  <div class="icon">⚠️</div>
+  <div class="msg">
+    <strong>Token mismatch detected!</strong><br>
+    Token trong container HA khác với token trong file Supervisor.<br>
+    Đây là nguyên nhân gây lỗi "Lỗi khi tải ứng dụng".
+  </div>
+  <button class="btn btn-danger" onclick="fixToken()">🔧 Fix ngay</button>
+</div>
+
+<!-- Status -->
+<div class="status-card">
+  <div class="status-title">📊 Trạng thái hiện tại</div>
+  <div class="status-grid" id="status-grid">
+    <div class="status-item">
+      <div class="label">Supervisor data</div>
+      <div class="value" id="s-data">Loading…</div>
+    </div>
+    <div class="status-item">
+      <div class="label">HA Version</div>
+      <div class="value" id="s-ver">—</div>
+    </div>
+    <div class="status-item">
+      <div class="label">File token (preview)</div>
+      <div class="value" id="s-ftoken" style="font-size:.75rem">—</div>
+    </div>
+    <div class="status-item">
+      <div class="label">Docker token (preview)</div>
+      <div class="value" id="s-dtoken" style="font-size:.75rem">—</div>
+    </div>
+    <div class="status-item">
+      <div class="label">Token match</div>
+      <div class="value" id="s-match">—</div>
+    </div>
+    <div class="status-item">
+      <div class="label">Snapshots</div>
+      <div class="value" id="s-count">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="openBackupModal()">
+    💾 Tạo backup mới
+  </button>
+  <button class="btn btn-ghost" onclick="loadData()">
+    🔄 Làm mới
+  </button>
+</div>
+
+<!-- Snapshots -->
+<div class="section-title">📦 Danh sách snapshots</div>
+<div class="snapshot-list" id="snapshot-list">
+  <div class="empty"><div class="icon">📭</div>Đang tải…</div>
+</div>
+
+<!-- Backup Modal -->
+<div class="modal-overlay hidden" id="backup-modal">
+  <div class="modal">
+    <h2>💾 Tạo Supervisor Backup</h2>
+    <p>Backup sẽ lưu các file config quan trọng của Supervisor:<br>
+    homeassistant.json, config.json, addons.json và các file khác.</p>
+    <input type="text" id="backup-label" placeholder="Tên backup (tùy chọn)…" />
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('backup-modal')">Hủy</button>
+      <button class="btn btn-primary" id="backup-confirm-btn" onclick="createBackup()">💾 Tạo backup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Modal -->
+<div class="modal-overlay hidden" id="restore-modal">
+  <div class="modal">
+    <h2>♻️ Xác nhận Restore</h2>
+    <p id="restore-modal-msg">Bạn có chắc muốn restore snapshot này?<br>
+    Các file hiện tại sẽ bị ghi đè. Cần restart Supervisor + HA sau khi restore.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('restore-modal')">Hủy</button>
+      <button class="btn btn-warn" id="restore-confirm-btn" onclick="confirmRestore()">♻️ Restore</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay hidden" id="delete-modal">
+  <div class="modal">
+    <h2>🗑 Xóa snapshot</h2>
+    <p>Xóa snapshot này? Hành động này không thể hoàn tác.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('delete-modal')">Hủy</button>
+      <button class="btn btn-danger" id="delete-confirm-btn" onclick="confirmDelete()">🗑 Xóa</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API_BASE = '/api/mai_tools/supervisor_backup';
+let pendingRestoreId = null;
+let pendingDeleteId = null;
+
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = '', 3000);
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function openBackupModal() {
+  document.getElementById('backup-label').value = '';
+  openModal('backup-modal');
+  setTimeout(() => document.getElementById('backup-label').focus(), 100);
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  return res.json();
+}
+
+async function loadData() {
+  try {
+    const data = await apiFetch('/list');
+    renderStatus(data.status, data.snapshots.length);
+    renderSnapshots(data.snapshots);
+  } catch (e) {
+    toast('Không thể tải dữ liệu: ' + e.message, 'error');
+  }
+}
+
+function renderStatus(s, count) {
+  const $ = id => document.getElementById(id);
+  $('s-data').textContent = s.supervisor_data_accessible ? '✅ Accessible' : '❌ Not found';
+  $('s-data').className = 'value ' + (s.supervisor_data_accessible ? 'ok' : 'err');
+  $('s-ver').textContent = s.ha_version || '—';
+  $('s-ftoken').textContent = s.current_token_preview || '—';
+  $('s-dtoken').textContent = s.docker_ha_token_preview || '—';
+  if (s.token_mismatch === true) {
+    $('s-match').textContent = '❌ MISMATCH';
+    $('s-match').className = 'value err';
+    document.getElementById('mismatch-banner').classList.remove('hidden');
+  } else if (s.token_mismatch === false) {
+    $('s-match').textContent = '✅ Match';
+    $('s-match').className = 'value ok';
+    document.getElementById('mismatch-banner').classList.add('hidden');
+  } else {
+    $('s-match').textContent = '— Unknown';
+    $('s-match').className = 'value warn';
+  }
+  $('s-count').textContent = count + ' snapshots';
+}
+
+function renderSnapshots(snapshots) {
+  const el = document.getElementById('snapshot-list');
+  if (!snapshots.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">📭</div>Chưa có backup nào. Tạo backup đầu tiên!</div>`;
+    return;
+  }
+  el.innerHTML = snapshots.map(s => `
+    <div class="snapshot-card">
+      <div class="snap-icon">📦</div>
+      <div class="snap-info">
+        <div class="snap-label">${escHtml(s.label || s.snapshot_id)}</div>
+        <div class="snap-meta">
+          <span>🕐 ${formatDate(s.created_at)}</span>
+          <span>📄 ${(s.files_backed_up||[]).length} files</span>
+          ${s.ha_version ? `<span>🏠 HA ${escHtml(s.ha_version)}</span>` : ''}
+          ${s.access_token_preview ? `<span style="font-family:monospace;font-size:.7rem;color:#7a7f94">token: ${escHtml(s.access_token_preview)}</span>` : ''}
+        </div>
+      </div>
+      <div class="snap-actions">
+        <button class="btn btn-warn btn-sm" onclick="restoreSnapshot('${s.snapshot_id}', '${escHtml(s.label||s.snapshot_id)}')">♻️ Restore</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteSnapshot('${s.snapshot_id}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleString('vi-VN', {dateStyle:'short', timeStyle:'short'});
+  } catch { return iso; }
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function createBackup() {
+  const label = document.getElementById('backup-label').value.trim();
+  const btn = document.getElementById('backup-confirm-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Đang backup…';
+  try {
+    const res = await apiFetch('/create', {
+      method: 'POST',
+      body: JSON.stringify({ label }),
+    });
+    closeModal('backup-modal');
+    if (res.success) {
+      toast('✅ Backup thành công: ' + res.snapshot.label);
+      loadData();
+    } else {
+      toast('❌ Lỗi: ' + (res.error || 'Unknown'), 'error');
+    }
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '💾 Tạo backup';
+  }
+}
+
+function restoreSnapshot(id, label) {
+  pendingRestoreId = id;
+  document.getElementById('restore-modal-msg').innerHTML =
+    `Restore snapshot <strong>${escHtml(label)}</strong>?<br>
+    Các file Supervisor hiện tại sẽ bị ghi đè.<br>
+    <span style="color:var(--yellow)">⚠️ Cần restart hassio_supervisor + homeassistant sau khi restore.</span>`;
+  openModal('restore-modal');
+}
+
+async function confirmRestore() {
+  if (!pendingRestoreId) return;
+  const btn = document.getElementById('restore-confirm-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Đang restore…';
+  try {
+    const res = await apiFetch('/restore', {
+      method: 'POST',
+      body: JSON.stringify({ snapshot_id: pendingRestoreId }),
+    });
+    closeModal('restore-modal');
+    if (res.success) {
+      toast('✅ Restore thành công! ' + res.restored.length + ' files. Nhớ restart containers!');
+    } else {
+      toast('❌ Lỗi restore: ' + (res.errors||[]).join(', '), 'error');
+    }
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '♻️ Restore';
+    pendingRestoreId = null;
+  }
+}
+
+function deleteSnapshot(id) {
+  pendingDeleteId = id;
+  openModal('delete-modal');
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  const btn = document.getElementById('delete-confirm-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const res = await apiFetch('/delete', {
+      method: 'DELETE',
+      body: JSON.stringify({ snapshot_id: pendingDeleteId }),
+    });
+    closeModal('delete-modal');
+    if (res.success) {
+      toast('🗑 Đã xóa snapshot');
+      loadData();
+    } else {
+      toast('❌ Không thể xóa', 'error');
+    }
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🗑 Xóa';
+    pendingDeleteId = null;
+  }
+}
+
+async function fixToken() {
+  toast('⏳ Đang gửi lệnh fix token…', 'success');
+  // Call a shell script via a persistent notification or directly via the API
+  // In production this would trigger the fix_token.sh script
+  // For now, show instructions
+  alert(
+    'Để fix token, chạy lệnh sau trong SSH:\n\n' +
+    'bash /config/.mai_supervisor_backups/<snapshot_id>/fix_token.sh\n\n' +
+    'Hoặc chạy:\n~/fix-ha-token.sh\n\n' +
+    'HA sẽ khởi động lại với token đúng.'
+  );
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if (e.target === el) el.classList.add('hidden');
+  });
+});
+
+// Initial load
+loadData();
+// Auto-refresh every 60s
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
