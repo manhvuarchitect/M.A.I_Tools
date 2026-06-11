@@ -332,11 +332,31 @@ function openBackupModal() {
   setTimeout(() => document.getElementById('backup-label').focus(), 100);
 }
 
+function getToken(){
+  try{
+    const a=window.parent?.hassConnection?.__auth||window.parent?.hass?.auth;
+    if(a?.data?.access_token)return a.data.access_token;
+  }catch(e){}
+  const ls=localStorage.getItem('mai_tools_token');
+  if(ls)return ls;
+  return sessionStorage.getItem('mai_token');
+}
+
 async function apiFetch(path, opts = {}) {
+  const token = getToken();
+  if (!token) throw new Error("Không tìm thấy token xác thực từ Home Assistant.");
   const res = await fetch(API_BASE + path, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
     ...opts,
   });
+  if (!res.ok) {
+    let msg = res.statusText;
+    try { const err = await res.json(); msg = err.error || msg; } catch(e) {}
+    throw new Error(msg);
+  }
   return res.json();
 }
 
