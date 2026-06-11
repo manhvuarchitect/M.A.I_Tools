@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass, config): return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.info("[M.A.I Tools] Setting up v2.0.3")
+    _LOGGER.info("[M.A.I Tools] Setting up v0.0.4")
     for view in [
         MAIDeviceListView, MAIExportView, MAITargetEntitiesView,
         MAICheckConflictsView, MAIStorePairsView, MAIApplyView,
@@ -27,7 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async_register_built_in_panel(
         hass, component_name="iframe", sidebar_title="M.A.I Tools",
         sidebar_icon="mdi:swap-horizontal", frontend_url_path="mai-tools",
-        config={"url": "/local/mai_tools/index.html"}, require_admin=True,
+        config={"url": "/local/mai_tools/index.html?v=0.0.4"}, require_admin=True,
     )
     return True
 
