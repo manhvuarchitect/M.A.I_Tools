@@ -75,12 +75,10 @@ body{
 }
 .brand img{width:32px;height:32px;border-radius:8px}
 .b-title{
-  font-size:15px;
-  font-weight:700;
-  letter-spacing:.25px;
-  background:linear-gradient(135deg,#03a9f4,#00e5ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  font-size:16px;
+  font-weight:500;
+  letter-spacing:.15px;
+  color:var(--primary-text-color);
 }
 .b-ver{font-size:11px;color:var(--secondary-text-color);margin-top:1px}
 
@@ -885,6 +883,30 @@ select option{background:#1c1c1c}
 </main>
 
 <script>
+// Sync HA theme variables dynamically
+function syncHATheme() {
+  try {
+    const pRoot = window.parent.document.documentElement;
+    const pStyle = window.getComputedStyle(pRoot);
+    const vars = [
+      '--primary-color', '--primary-text-color', '--secondary-text-color',
+      '--disabled-text-color', '--primary-background-color', '--secondary-background-color',
+      '--card-background-color', '--divider-color', '--error-color', '--warning-color',
+      '--success-color', '--info-color', '--sidebar-background-color',
+      '--mdc-theme-primary', '--mdc-theme-secondary'
+    ];
+    vars.forEach(v => {
+      const val = pStyle.getPropertyValue(v);
+      if (val) {
+        document.documentElement.style.setProperty(v, val);
+        if (v === '--sidebar-background-color') document.documentElement.style.setProperty('--sidebar-background', val);
+      }
+    });
+  } catch(e) {}
+}
+syncHATheme();
+try { new MutationObserver(syncHATheme).observe(window.parent.document.documentElement, { attributes: true }); } catch(e) {}
+
 const BASE='/api/mai_tools';
 let allDevices=[],backupData=null,pairs=[],srcSelectedId=null,tgtSelectedId=null,activeSrcDevice=null,exportMode='device',selectedDeviceIds=new Set();
 
