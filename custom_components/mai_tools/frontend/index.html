@@ -650,12 +650,170 @@ select option{background:#1c1c1c}
   margin-top:14px;
 }
 
+/* ── DOCKER CLEANUP PAGE ──────────────────────────────────── */
+.docker-hero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:28px 20px 20px;
+  text-align:center;
+}
+.docker-icon-wrap{
+  width:80px;height:80px;
+  border-radius:50%;
+  background:linear-gradient(135deg,rgba(3,169,244,.18) 0%,rgba(3,169,244,.06) 100%);
+  border:2px solid rgba(3,169,244,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.4rem;
+  margin-bottom:16px;
+  box-shadow:0 0 32px rgba(3,169,244,.15);
+  animation:docker-pulse 3s ease-in-out infinite;
+}
+@keyframes docker-pulse{
+  0%,100%{box-shadow:0 0 20px rgba(3,169,244,.15);border-color:rgba(3,169,244,.3)}
+  50%{box-shadow:0 0 36px rgba(3,169,244,.3);border-color:rgba(3,169,244,.5)}
+}
+.docker-hero h3{font-size:18px;font-weight:500;letter-spacing:.15px;margin-bottom:6px}
+.docker-hero p{font-size:13px;color:var(--secondary-text-color);line-height:1.6;max-width:420px}
+.docker-btn-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.btn-docker{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 32px;
+  border:none;border-radius:10px;
+  background:linear-gradient(135deg,#0288d1 0%,#03a9f4 100%);
+  color:#fff;font-family:'Roboto',sans-serif;
+  font-size:15px;font-weight:500;letter-spacing:.5px;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 16px rgba(3,169,244,.35);
+}
+.btn-docker:hover:not(:disabled){
+  background:linear-gradient(135deg,#01579b 0%,#0288d1 100%);
+  box-shadow:0 6px 24px rgba(3,169,244,.5);
+  transform:translateY(-1px);
+}
+.btn-docker:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.docker-running-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--primary-color);
+  background:rgba(3,169,244,.1);border-radius:20px;
+  padding:4px 12px;
+  display:none;
+}
+.docker-running-badge.show{display:inline-flex}
+.prune-output{
+  background:#0a0a0a;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:16px;
+  font-family:'Roboto Mono',monospace;
+  font-size:12px;
+  color:#b0bec5;
+  line-height:1.7;
+  max-height:280px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+  word-break:break-all;
+  display:none;
+}
+.prune-output.show{display:block}
+.prune-reclaimed{
+  display:none;
+  align-items:center;gap:8px;
+  margin-top:12px;
+  padding:12px 16px;
+  background:rgba(76,175,80,.1);
+  border:1px solid rgba(76,175,80,.25);
+  border-radius:8px;
+  font-size:14px;font-weight:500;
+  color:#81c784;
+}
+.prune-reclaimed.show{display:flex}
+.filter-code{
+  display:inline-block;
+  font-family:'Roboto Mono',monospace;
+  font-size:11px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;
+  padding:1px 7px;
+  color:var(--primary-color);
+  letter-spacing:.3px;
+}
+
 /* ── SCROLLBAR ──────────────────────────────────────────── */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
-</style>
+
+/* ── CONTAINER MANAGER ───────────────────────────────── */
+.container-table{width:100%;border-collapse:collapse;font-size:13px}
+.container-table th{
+  text-align:left;padding:9px 10px;
+  color:var(--secondary-text-color);
+  font-size:11px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.8px;
+  border-bottom:1px solid var(--divider-color);
+}
+.container-table td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.container-table tr:last-child td{border-bottom:none}
+.container-table tr:hover td{background:rgba(255,255,255,.02)}
+.ct-name{font-weight:500;font-size:13px;letter-spacing:.1px}
+.ct-img{font-size:11px;color:var(--secondary-text-color);font-family:'Roboto Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.ct-state-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:500;padding:2px 8px;
+  border-radius:10px;white-space:nowrap;
+}
+.ct-running{background:rgba(76,175,80,.15);color:#81c784}
+.ct-stopped{background:rgba(158,158,158,.15);color:#9e9e9e}
+.ct-paused{background:rgba(255,152,0,.15);color:#ffb74d}
+.ct-protect-toggle{
+  position:relative;display:inline-flex;align-items:center;
+  width:44px;height:24px;cursor:pointer;
+  transition:all .2s;
+}
+.ct-protect-toggle input{opacity:0;width:0;height:0;position:absolute}
+.ct-toggle-track{
+  position:absolute;inset:0;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:12px;
+  transition:all .25s;
+}
+.ct-protect-toggle input:checked + .ct-toggle-track{
+  background:rgba(76,175,80,.25);
+  border-color:rgba(76,175,80,.5);
+}
+.ct-toggle-thumb{
+  position:absolute;left:3px;top:3px;
+  width:16px;height:16px;
+  background:rgba(255,255,255,.4);
+  border-radius:50%;
+  transition:all .25s;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.ct-protect-toggle input:checked ~ .ct-toggle-thumb{
+  left:23px;
+  background:#81c784;
+  box-shadow:0 0 8px rgba(76,175,80,.5);
+}
+.ct-protect-label{
+  font-size:11px;font-weight:500;min-width:56px;
+  padding-left:6px;
+}
+.ct-protect-label.on{color:#81c784}
+.ct-protect-label.off{color:var(--secondary-text-color)}
+.ct-loading-row td{text-align:center;padding:20px;color:var(--secondary-text-color)}
+.cm-refresh-bar{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;
+  font-size:12px;color:var(--secondary-text-color);
+}
+.cm-refresh-bar button{font-size:12px;padding:4px 10px}
+.cm-counter{margin-left:auto;font-size:11px}
+.ct-protect-wrap{display:flex;align-items:center;gap:4px}
 </head>
 <body>
 
@@ -678,7 +836,7 @@ select option{background:#1c1c1c}
     <img src="icon.png" alt="M.A.I Tools"/>
     <div>
       <div class="b-title">M.A.I Tools</div>
-      <div class="b-ver">v0.0.4 · midar.vn</div>
+      <div class="b-ver">v0.0.5 · midar.vn</div>
     </div>
     <div class="token-status-pill warn" id="sidebarTokenPill" title="Trạng thái token xác thực">
       <span id="sidebarTokenDot">🔴</span>
@@ -697,8 +855,12 @@ select option{background:#1c1c1c}
     <div class="nav-item" id="nav-history" onclick="nav('history');loadHistory()"><span class="nav-icon">🕐</span>Lịch sử &amp; Rollback</div>
   </div>
   <div class="nav-section">
-    <div class="nav-label">Coming Soon</div>
+    <div class="nav-label">System Tools</div>
     <div class="nav-item" onclick="window.location.href='supervisor_backup_panel.html'"><span class="nav-icon">🗄️</span>Supervisor Backup</div>
+    <div class="nav-item" id="nav-docker" onclick="nav('docker')"><span class="nav-icon">🐳</span>Docker Cleanup</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Coming Soon</div>
     <div class="nav-item nav-disabled"><span class="nav-icon">🔍</span>Entity Inspector</div>
     <div class="nav-item nav-disabled"><span class="nav-icon">🤖</span>Auto Audit</div>
   </div>
@@ -720,10 +882,11 @@ select option{background:#1c1c1c}
     <p>Bộ công cụ quản lý Home Assistant — midar.vn</p>
   </div>
   <div class="tool-grid">
-    <div class="tool-card" onclick="nav('export')"><div class="tc-icon">📤</div><div class="tc-name">Entity Export</div><div class="tc-desc">Backup nhiều thiết bị theo device, room, hoặc tất cả</div><div class="tc-badge">✅ v0.0.4</div></div>
-    <div class="tool-card" onclick="nav('import')"><div class="tc-icon">🔗</div><div class="tc-name">Entity Import</div><div class="tc-desc">Tick-to-pair linh hoạt + conflict detection tự động</div><div class="tc-badge">✅ v0.0.4</div></div>
-    <div class="tool-card" onclick="nav('history');loadHistory()"><div class="tc-icon">🕐</div><div class="tc-name">Rollback</div><div class="tc-desc">Xem lịch sử apply, undo từng lần về trạng thái cũ</div><div class="tc-badge">✅ v0.0.4</div></div>
+    <div class="tool-card" onclick="nav('export')"><div class="tc-icon">📤</div><div class="tc-name">Entity Export</div><div class="tc-desc">Backup nhiều thiết bị theo device, room, hoặc tất cả</div><div class="tc-badge">✅ v0.0.5</div></div>
+    <div class="tool-card" onclick="nav('import')"><div class="tc-icon">🔗</div><div class="tc-name">Entity Import</div><div class="tc-desc">Tick-to-pair linh hoạt + conflict detection tự động</div><div class="tc-badge">✅ v0.0.5</div></div>
+    <div class="tool-card" onclick="nav('history');loadHistory()"><div class="tc-icon">🕐</div><div class="tc-name">Rollback</div><div class="tc-desc">Xem lịch sử apply, undo từng lần về trạng thái cũ</div><div class="tc-badge">✅ v0.0.5</div></div>
     <div class="tool-card" onclick="window.location.href='supervisor_backup_panel.html'"><div class="tc-icon">🗄️</div><div class="tc-name">Supervisor Backup</div><div class="tc-desc">Quản lý file config, fix lỗi Supervisor Token</div><div class="tc-badge">✅ Mới</div></div>
+    <div class="tool-card" onclick="nav('docker')"><div class="tc-icon">🐳</div><div class="tc-name">Docker Cleanup</div><div class="tc-desc">Dọn dẹp Docker ARBox — xóa image/volume/cache không dùng</div><div class="tc-badge">✅ v0.0.5</div></div>
   </div>
 </div>
 
@@ -809,6 +972,117 @@ select option{background:#1c1c1c}
     <div id="historyList"><div class="empty-state">Đang tải...</div></div>
   </div>
   <div class="result-box" id="rollbackResultBox"></div>
+</div>
+
+<!-- DOCKER CLEANUP -->
+<div id="page-docker" class="page">
+  <div class="page-header">
+    <h2>🐳 Docker Cleanup — ARBox _manhhome</h2>
+    <p>Dọn dẹp tài nguyên Docker không sử dụng một cách an toàn</p>
+  </div>
+
+  <!-- Hero Card -->
+  <div class="card">
+    <div class="docker-hero">
+      <div class="docker-icon-wrap">🐳</div>
+      <h3>Dọn dẹp Docker ARBox _manhhome</h3>
+      <p>Xóa toàn bộ image, container dừng, volume và build cache không sử dụng.<br>
+         Các container/volume được đánh nhãn <span class="filter-code">protect=true</span> sẽ được bảo vệ tuyệt đối.</p>
+      <div class="docker-btn-wrap">
+        <button class="btn-docker" id="dockerPruneBtn" onclick="runDockerPrune()">
+          🧹 Dọn dẹp ngay
+        </button>
+        <div class="docker-running-badge" id="dockerRunningBadge">
+          <span class="loader"></span>
+          Đang thực thi docker prune... (có thể mất vài phút)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Safety Info Card -->
+  <div class="card">
+    <div class="card-title">🛡️ Bộ lọc bảo vệ hệ thống</div>
+    <div class="warn-box" style="margin-top:0">
+      <div class="info-box-icon">⚠️</div>
+      <div>
+        <b style="color:var(--warning-color)">Quy tắc an toàn bắt buộc:</b> Lệnh luôn được thực thi với bộ lọc cứng:<br>
+        <code style="display:block;margin:8px 0;background:rgba(255,255,255,.06);padding:8px 12px;border-radius:6px;font-size:12px;color:#80cbc4;border-left:3px solid var(--primary-color)">docker system prune -a -f --volumes --filter "label!=protect=true"</code>
+        Bất kỳ container hoặc volume nào được đánh nhãn <span class="filter-code">protect=true</span> sẽ <b>không bị xóa</b>.
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px">
+      <div class="info-box-icon">💡</div>
+      <div>
+        Để bảo vệ container test quan trọng, thêm nhãn vào <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;font-size:11px">docker-compose.yml</code>:<br>
+        <code style="display:block;margin-top:6px;background:rgba(255,255,255,.06);padding:8px 12px;border-radius:6px;font-size:12px;color:#80cbc4">labels:
+  - "protect=true"</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result / Output Card -->
+  <div class="card" id="dockerResultCard" style="display:none">
+    <div class="card-title" id="dockerResultTitle">📋 Kết quả thực thi</div>
+    <div class="prune-reclaimed" id="dockerReclaimedBox">
+      <span style="font-size:1.4rem">🎉</span>
+      <span>Đã giải phóng: <b id="dockerReclaimedAmt"></b></span>
+    </div>
+    <div style="margin-top:12px">
+      <div class="field-label" style="margin-bottom:6px">Chi tiết output</div>
+      <div class="prune-output show" id="dockerOutputBox"></div>
+    </div>
+  </div>
+
+  <!-- History Card -->
+  <div class="card">
+    <div class="card-title">⚡ Thông tin kỹ thuật</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <tr style="border-bottom:1px solid var(--divider-color)">
+        <td style="padding:9px 4px;color:var(--secondary-text-color);width:40%">Lệnh thực thi</td>
+        <td style="padding:9px 4px;font-family:monospace;font-size:12px;color:#80cbc4">docker system prune -a -f --volumes --filter label!=protect=true</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--divider-color)">
+        <td style="padding:9px 4px;color:var(--secondary-text-color)">Phương thức</td>
+        <td style="padding:9px 4px">Bất đồng bộ (async) — không block HA Event Loop</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--divider-color)">
+        <td style="padding:9px 4px;color:var(--secondary-text-color)">Timeout tối đa</td>
+        <td style="padding:9px 4px">300 giây (5 phút)</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 4px;color:var(--secondary-text-color)">Service HA</td>
+        <td style="padding:9px 4px;font-family:monospace;font-size:12px;color:var(--primary-color)">mai_tools.clean_docker_arbox</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Container Manager Card -->
+  <div class="card" id="containerManagerCard">
+    <div class="card-title">
+      🛡️ Quản lý bảo vệ Container
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn btn-ghost btn-sm" id="cmRefreshBtn" onclick="loadContainers()">🔄 Làm mới</button>
+    </div>
+
+    <div class="cm-refresh-bar">
+      <span id="cmLastRefresh">Chưa tải</span>
+      <span class="cm-counter" id="cmCounter"></span>
+    </div>
+
+    <div class="warn-box" style="margin-top:0;margin-bottom:14px">
+      <div class="info-box-icon">⚠️</div>
+      <div>
+        <b style="color:var(--warning-color)">Container đang RUNNING:</b> Hệ thống sẽ tự động <b>Stop → Gán nhãn → Start lại</b> (~vài giây downtime).<br>
+        Container đang <b>STOPPED</b> sẽ được cập nhật không cần restart.
+      </div>
+    </div>
+
+    <div id="containerTableWrap">
+      <div class="empty-state">⏳ Đang tải danh sách containers...</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- SETTINGS -->
@@ -1371,6 +1645,214 @@ async function confirmClearHistory(){
 }
 
 init();
+
+// ══ DOCKER CLEANUP ══════════════════════════════════════════
+async function runDockerPrune(){
+  const btn=document.getElementById('dockerPruneBtn');
+  const badge=document.getElementById('dockerRunningBadge');
+  const resultCard=document.getElementById('dockerResultCard');
+  const resultTitle=document.getElementById('dockerResultTitle');
+  const reclaimedBox=document.getElementById('dockerReclaimedBox');
+  const reclaimedAmt=document.getElementById('dockerReclaimedAmt');
+  const outputBox=document.getElementById('dockerOutputBox');
+
+  if(!confirm('⚠️ Xác nhận dọn dẹp Docker?\n\nLệnh sẽ xóa:\n• Tất cả image không sử dụng\n• Container đã dừng (không có nhãn protect=true)\n• Volume không dùng\n• Build cache\n\nCác container/volume có nhãn protect=true sẽ được bảo toàn.'))return;
+
+  // Cập nhật UI sang trạng thái loading
+  btn.disabled=true;
+  badge.classList.add('show');
+  resultCard.style.display='none';
+  reclaimedBox.classList.remove('show');
+  outputBox.textContent='⏳ Đang kết nối đến HA API...';
+
+  try{
+    const token=getTokenValue();
+    if(!token){throw new Error('Chưa có token xác thực. Vào Cài đặt để nhập token.');}
+
+    outputBox.textContent='🚀 Đang thực thi docker system prune...\nVui lòng đợi, lệnh có thể mất đến 5 phút.';
+
+    const resp=await fetch('/api/mai_tools/docker_cleanup',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+    });
+
+    const data=await resp.json();
+
+    // Hiển thị kết quả
+    resultCard.style.display='block';
+    outputBox.textContent=data.output||'(Không có output chi tiết)';
+
+    if(data.success){
+      resultTitle.innerHTML='✅ Dọn dẹp hoàn thành';
+      resultTitle.style.color='var(--success-color)';
+      if(data.reclaimed_space&&data.reclaimed_space!=='0 B'){
+        reclaimedAmt.textContent=data.reclaimed_space;
+        reclaimedBox.classList.add('show');
+      }
+    } else {
+      resultTitle.innerHTML='❌ Thực thi thất bại';
+      resultTitle.style.color='var(--error-color)';
+      if(data.error)outputBox.textContent='Lỗi: '+data.error+'\n\n'+outputBox.textContent;
+    }
+  }catch(err){
+    resultCard.style.display='block';
+    resultTitle.innerHTML='❌ Lỗi kết nối';
+    resultTitle.style.color='var(--error-color)';
+    outputBox.textContent='Lỗi: '+err.message;
+  }finally{
+    btn.disabled=false;
+    badge.classList.remove('show');
+  }
+}
+
+// ══ CONTAINER MANAGER ═════════════════════════════════════════
+
+let _cmAutoRefreshTimer = null;
+
+function _stateClass(state){
+  if(state==='running')return 'ct-running';
+  if(state==='paused')return 'ct-paused';
+  return 'ct-stopped';
+}
+function _stateLabel(state){
+  const m={'running':'🟢 Running','exited':'⚪ Stopped','paused':'🟡 Paused','created':'🔵 Created','restarting':'🔄 Restarting'};
+  return m[state]||state;
+}
+
+async function loadContainers(){
+  const wrap=document.getElementById('containerTableWrap');
+  const lastRef=document.getElementById('cmLastRefresh');
+  const counter=document.getElementById('cmCounter');
+  if(!wrap)return;
+
+  wrap.innerHTML='<div class="empty-state"><span class="loader"></span> Đang tải...</div>';
+
+  try{
+    const token=getTokenValue();
+    if(!token){wrap.innerHTML='<div class="empty-state" style="color:var(--error-color)">❌ Chưa có token. Vào Cài đặt để nhập token.</div>';return;}
+
+    const resp=await fetch('/api/mai_tools/docker_containers',{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    const data=await resp.json();
+    const containers=data.containers||[];
+
+    lastRef.textContent='Đã tải lúc '+new Date().toLocaleTimeString('vi-VN');
+    counter.textContent=`Tổng: ${containers.length} container`;
+
+    if(containers.length===0){
+      wrap.innerHTML='<div class="empty-state">Không tìm thấy container nào trên host.</div>';
+      return;
+    }
+
+    const rows=containers.map(c=>{
+      const sc=_stateClass(c.state||'');
+      const sl=_stateLabel(c.state||'');
+      const chk=c.protected?'checked':'';
+      const pLbl=c.protected?'Bảo vệ':'Không';
+      const pCls=c.protected?'on':'off';
+      const cid=c.id;
+      const cname=c.name;
+      return `<tr>
+        <td><div class="ct-name">${cname}</div><div class="ct-img">${c.image||''}</div></td>
+        <td><span class="ct-state-badge ${sc}">${sl}</span></td>
+        <td>
+          <div class="ct-protect-wrap">
+            <label class="ct-protect-toggle" title="Bật/Tắt bảo vệ">
+              <input type="checkbox" ${chk} onchange="toggleProtect('${cid}','${cname}',this)">
+              <div class="ct-toggle-track"></div>
+              <div class="ct-toggle-thumb"></div>
+            </label>
+            <span class="ct-protect-label ${pCls}" id="plabel-${cid}">${pLbl}</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML=`
+      <table class="container-table">
+        <thead><tr>
+          <th>Container</th>
+          <th>Trạng thái</th>
+          <th>Bảo vệ</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+  }catch(err){
+    wrap.innerHTML=`<div class="empty-state" style="color:var(--error-color)">❌ Lỗi: ${err.message}</div>`;
+  }
+}
+
+async function toggleProtect(containerId, containerName, checkbox){
+  const isProtected=checkbox.checked;
+  const labelEl=document.getElementById('plabel-'+containerId);
+  const action=isProtected?'Bật':'Tắt';
+
+  // Xác nhận với user
+  const runningWarning=isProtected
+    ?'\n\nNếu container đang chạy, hệ thống sẽ tự động Stop → Gán nhãn → Start lại (~vài giây downtime).'
+    :'';
+  if(!confirm(`${action} bảo vệ container "${containerName}"?${runningWarning}`)){
+    checkbox.checked=!isProtected;// Hoàn tác thay đổi
+    return;
+  }
+
+  // Disable checkbox và cho biết đang xử lý
+  checkbox.disabled=true;
+  if(labelEl){labelEl.textContent='⏳ Đang xử lý...';labelEl.className='ct-protect-label';}
+
+  try{
+    const token=getTokenValue();
+    if(!token)throw new Error('Chưa có token xác thực');
+
+    const resp=await fetch('/api/mai_tools/docker_protect',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({container_id:containerId,protected:isProtected}),
+    });
+    const data=await resp.json();
+
+    if(data.success){
+      if(labelEl){
+        labelEl.textContent=isProtected?'Bảo vệ':'Không';
+        labelEl.className='ct-protect-label '+(isProtected?'on':'off');
+      }
+      // Refresh sau 1.5s để lấy trạng thái mới nhất từ Docker
+      setTimeout(loadContainers,1500);
+    }else{
+      checkbox.checked=!isProtected;// Rollback UI
+      if(labelEl){labelEl.textContent=isProtected?'Không':'Bảo vệ';labelEl.className='ct-protect-label '+(isProtected?'off':'on');}
+      alert('❌ Thất bại: '+(data.error||'Lỗi không xác định')+(data.message?'\n'+data.message:''));
+    }
+  }catch(err){
+    checkbox.checked=!isProtected;
+    if(labelEl){labelEl.textContent=isProtected?'Không':'Bảo vệ';labelEl.className='ct-protect-label '+(isProtected?'off':'on');}
+    alert('❌ Lỗi kết nối: '+err.message);
+  }finally{
+    checkbox.disabled=false;
+  }
+}
+
+// Auto-refresh Container Manager khi vào tab Docker
+const _origNav=window.nav;
+window.nav=function(page){
+  if(typeof _origNav==='function')_origNav(page);
+  if(page==='docker'){
+    loadContainers();
+    // Auto-refresh mỗi 30 giây khi đang ở tab docker
+    clearInterval(_cmAutoRefreshTimer);
+    _cmAutoRefreshTimer=setInterval(loadContainers,30000);
+  }else{
+    clearInterval(_cmAutoRefreshTimer);
+  }
+};
+// Override nav function từ existing code phía trước
+const _haNavItems=document.querySelectorAll('.nav-item[id^="nav-"]');
+// Khơi động lần đầu - nếu tab docker đang active
+document.addEventListener('DOMContentLoaded',()=>{if(document.getElementById('page-docker')?.classList.contains('active'))loadContainers();});
+
 </script>
 </body>
 </html>
