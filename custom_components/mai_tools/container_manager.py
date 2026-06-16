@@ -6,21 +6,26 @@ Recreate container thay vì sửa file config json (Vì API không hỗ trợ s�
 
 import logging
 from aiohttp import web
+from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
 from .docker_api import docker_api
 from .coordinator import DockerContainerCoordinator
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class DockerContainerListView(web.View):
+class DockerContainerListView(HomeAssistantView):
     """API trả về danh sách container cho Frontend."""
+    url = "/api/mai_tools/docker_containers"
+    name = "api:mai_tools:docker_containers"
+    requires_auth = True
 
-    async def get(self):
+    async def get(self, request):
         """GET /api/mai_tools/docker_containers"""
         try:
-            coordinator: DockerContainerCoordinator = self.request.app["hass"].data["mai_tools_coordinator"]
+            coordinator: DockerContainerCoordinator = request.app["hass"].data[DOMAIN]["coordinator"]
             
             # Buộc cập nhật dữ liệu mới nhất nếu cần
             await coordinator.async_request_refresh()
@@ -52,13 +57,16 @@ class DockerContainerListView(web.View):
             }, status=500)
 
 
-class DockerProtectView(web.View):
+class DockerProtectView(HomeAssistantView):
     """API nhận lệnh bật/tắt bảo vệ container từ Frontend."""
+    url = "/api/mai_tools/docker_protect"
+    name = "api:mai_tools:docker_protect"
+    requires_auth = True
 
-    async def post(self):
+    async def post(self, request):
         """POST /api/mai_tools/docker_protect"""
         try:
-            body = await self.request.json()
+            body = await request.json()
             container_id = body.get("container_id")
             is_protected = bool(body.get("protected", False))
 
@@ -71,7 +79,7 @@ class DockerProtectView(web.View):
             new_id = await docker_api.recreate_container(container_id, set_protect=is_protected)
 
             # Làm mới coordinator data
-            coordinator: DockerContainerCoordinator = self.request.app["hass"].data["mai_tools_coordinator"]
+            coordinator: DockerContainerCoordinator = request.app["hass"].data[DOMAIN]["coordinator"]
             await coordinator.async_request_refresh()
 
             return web.json_response({

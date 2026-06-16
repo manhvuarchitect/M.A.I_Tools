@@ -5,6 +5,7 @@ Bắt buộc áp dụng bộ lọc: --filter "label!=protect=true"
 
 import logging
 from aiohttp import web
+from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 
@@ -34,13 +35,13 @@ async def async_setup_docker_cleanup(hass: HomeAssistant):
     )
 
 
-class DockerCleanupView(web.View):
+class DockerCleanupView(HomeAssistantView):
     """HTTP API View để kích hoạt Docker Cleanup từ Frontend."""
+    url = "/api/mai_tools/docker_cleanup"
+    name = "api:mai_tools:docker_cleanup"
+    requires_auth = True
 
-    async def postself(self):
-        return await self.post()
-
-    async def post(self):
+    async def post(self, request):
         """Xử lý yêu cầu dọn dẹp từ giao diện (POST /api/mai_tools/docker_cleanup)."""
         _LOGGER.info("[M.A.I Tools] Nhận yêu cầu dọn dẹp Docker từ giao diện.")
 
