@@ -11,8 +11,8 @@ from .api import (
     MAICheckConflictsView, MAIStorePairsView, MAIApplyView,
     MAIHistoryView, MAIRollbackView, MAIDeleteSnapshotView, MAIClearHistoryView,
 )
-from .docker_cleanup import DockerCleanupView, async_clean_docker_arbox
-from .container_manager import DockerContainerListView, DockerContainerProtectView
+from .docker_cleanup import DockerCleanupView, async_setup_docker_cleanup
+from .container_manager import DockerContainerListView, DockerProtectView
 from .coordinator import DockerContainerCoordinator
 from .const import DOMAIN, SERVICE_CLEAN_DOCKER
 
@@ -44,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         MAIHistoryView, MAIRollbackView, MAIDeleteSnapshotView, MAIClearHistoryView,
         DockerCleanupView,          # POST /api/mai_tools/docker_cleanup
         DockerContainerListView,    # GET  /api/mai_tools/docker_containers
-        DockerContainerProtectView, # POST /api/mai_tools/docker_protect
+        DockerProtectView,          # POST /api/mai_tools/docker_protect
     ]:
         hass.http.register_view(view)
 
@@ -58,14 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
     # ── Đăng ký Service: mai_tools.clean_docker_arbox ─────────────────────
-    hass.services.async_register(
-        domain=DOMAIN,
-        service=SERVICE_CLEAN_DOCKER,
-        service_func=lambda call: hass.async_create_task(
-            async_clean_docker_arbox(hass, call)
-        ),
-        schema=vol.Schema({}),
-    )
+    await async_setup_docker_cleanup(hass)
     _LOGGER.info(
         "[M.A.I Tools] Đã đăng ký service: %s.%s", DOMAIN, SERVICE_CLEAN_DOCKER
     )
