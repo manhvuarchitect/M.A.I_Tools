@@ -34,8 +34,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # ── Khởi tạo Coordinator và fetch data lần đầu ────────────────────────
     coordinator = DockerContainerCoordinator(hass)
     hass.data[DOMAIN]["coordinator"] = coordinator
-    # Fetch lần đầu (không raise nếu Docker chưa sẵn sàng)
-    await coordinator.async_config_entry_first_refresh()
+    # Fetch lần đầu (không raise lỗi để tránh sập toàn bộ integration nếu không có Docker)
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    except Exception as e:
+        _LOGGER.warning("[M.A.I Tools] Không thể kết nối Docker API ban đầu (có thể do chưa mount socket). Bỏ qua lỗi để tiếp tục tải các tính năng khác: %s", e)
 
     # ── Đăng ký các REST API View ──────────────────────────────────────────
     for view in [
@@ -67,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async_register_built_in_panel(
         hass, component_name="iframe", sidebar_title="M.A.I Tools",
         sidebar_icon="mdi:swap-horizontal", frontend_url_path="mai-tools",
-        config={"url": "/local/mai_tools/index.html?v=0.0.7"}, require_admin=True,
+        config={"url": "/local/mai_tools/index.html?v=0.0.8"}, require_admin=True,
     )
     return True
 
