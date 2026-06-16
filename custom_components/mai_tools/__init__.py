@@ -74,7 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async_register_built_in_panel(
         hass, component_name="iframe", sidebar_title="M.A.I Tools",
         sidebar_icon="mdi:swap-horizontal", frontend_url_path="mai-tools",
-        config={"url": "/local/mai_tools/index.html?v=0.0.6"}, require_admin=True,
+        config={"url": "/local/mai_tools/index.html?v=0.0.7"}, require_admin=True,
     )
     return True
 

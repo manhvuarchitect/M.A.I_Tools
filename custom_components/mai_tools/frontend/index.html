@@ -1793,7 +1793,7 @@ async function toggleProtect(containerId, containerName, checkbox){
 
   // Xác nhận với user
   const runningWarning=isProtected
-    ?'\n\nNếu container đang chạy, hệ thống sẽ tự động Stop → Gán nhãn → Start lại (~vài giây downtime).'
+    ?'\n\nLưu ý: Hệ thống sẽ tự động Recreate container (xóa & tạo lại với config cũ) để gán nhãn (~vài giây downtime).'
     :'';
   if(!confirm(`${action} bảo vệ container "${containerName}"?${runningWarning}`)){
     checkbox.checked=!isProtected;// Hoàn tác thay đổi

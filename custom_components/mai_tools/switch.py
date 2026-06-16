@@ -21,7 +21,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import DockerContainerCoordinator
-from .container_manager import _set_protect_label
+from .docker_api import docker_api
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -156,55 +156,41 @@ class DockerProtectSwitch(CoordinatorEntity[DockerContainerCoordinator], SwitchE
         }
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """
-        Bật bảo vệ: Gán nhãn protect=true cho container.
-
-        Nếu container đang RUNNING: Stop → Edit label → Start lại.
-        """
+        """Bật bảo vệ: Gán nhãn protect=true cho container."""
         _LOGGER.info(
             "[M.A.I Tools] Switch BẬT bảo vệ container: %s", self._container_name
         )
-        result = await self.hass.async_add_executor_job(
-            _set_protect_label, self._container_id, True
-        )
-        if result["success"]:
+        try:
+            await docker_api.recreate_container(self._container_id, set_protect=True)
             _LOGGER.info(
-                "[M.A.I Tools] ✅ Đã BẬT bảo vệ container %s. %s",
+                "[M.A.I Tools] ✅ Đã BẬT bảo vệ container %s.",
                 self._container_name,
-                result.get("message", ""),
             )
-        else:
+        except Exception as e:
             _LOGGER.error(
                 "[M.A.I Tools] ❌ Thất bại khi BẬT bảo vệ container %s: %s",
                 self._container_name,
-                result.get("error"),
+                e,
             )
         # Refresh coordinator để cập nhật trạng thái entity
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        """
-        Tắt bảo vệ: Gỡ nhãn protect khỏi container.
-
-        Nếu container đang RUNNING: Stop → Edit label → Start lại.
-        """
+        """Tắt bảo vệ: Gỡ nhãn protect khỏi container."""
         _LOGGER.info(
             "[M.A.I Tools] Switch TẮT bảo vệ container: %s", self._container_name
         )
-        result = await self.hass.async_add_executor_job(
-            _set_protect_label, self._container_id, False
-        )
-        if result["success"]:
+        try:
+            await docker_api.recreate_container(self._container_id, set_protect=False)
             _LOGGER.info(
-                "[M.A.I Tools] ✅ Đã TẮT bảo vệ container %s. %s",
+                "[M.A.I Tools] ✅ Đã TẮT bảo vệ container %s.",
                 self._container_name,
-                result.get("message", ""),
             )
-        else:
+        except Exception as e:
             _LOGGER.error(
                 "[M.A.I Tools] ❌ Thất bại khi TẮT bảo vệ container %s: %s",
                 self._container_name,
-                result.get("error"),
+                e,
             )
         # Refresh coordinator để cập nhật trạng thái entity
         await self.coordinator.async_request_refresh()
